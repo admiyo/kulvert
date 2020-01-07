@@ -1,8 +1,14 @@
 use actix_web::{get, web, App,  HttpRequest, HttpServer, Responder};
 
-async fn root(req: HttpRequest) -> &'static str {
+mod versions;
+
+
+async fn root(req: HttpRequest) -> impl Responder {
     println!("REQ: {:?}", req);
-    "Hello world!"
+
+    let v = versions::get_versions();
+    let j = serde_json::to_string(&v);
+    return j;
 }
 
 #[get("/{id}/{name}/index.html")]
