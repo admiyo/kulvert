@@ -47,7 +47,7 @@ fn get_v3_links() -> [Link; 1]{
     return [a];
 }
 
-fn get_v3() -> Version{
+pub fn get_v3() -> Version{
     let a = Version {
         status: "stable".to_string(),
         updated: "2018-02-28T00:00:00Z".to_string(),
