@@ -1,5 +1,7 @@
 use serde::Serialize;
 
+
+
 #[derive(Clone, Serialize)]
 pub struct Link {
     href: String,
@@ -21,6 +23,15 @@ pub struct Version {
     media_types: Vec<MediaType>,
     links: Vec<Link>
 }
+
+#[derive(Clone, Serialize)]
+pub struct User {
+    id: String,
+    name: String,
+    provider: String,
+    enabled: bool,
+}
+
 
 #[derive(Clone, Serialize)]
 pub struct Versions {
