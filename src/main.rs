@@ -9,13 +9,8 @@ use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig
 mod versions;
 
 
-
 async fn versions(req: HttpRequest) -> impl Responder {
 
-   if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "actix_web=info");
-    }
-    env_logger::init();
     
     println!("REQ: {:?}", req);
 
@@ -46,6 +41,12 @@ async fn main() -> std::io::Result<()> {
     let mut config = ServerConfig::new(
         AllowAnyAnonymousOrAuthenticatedClient::new(root_store));
     config.set_single_cert(cert_chain, keys.remove(0)).unwrap();
+
+
+    if std::env::var("RUST_LOG").is_err() {
+        std::env::set_var("RUST_LOG", "actix_web=info");
+    }
+    env_logger::init();
 
     
     HttpServer::new(|| {

@@ -1,7 +1,20 @@
 use serde::Serialize;
 
+#[derive(Clone, Serialize)]
+pub struct BaseLink {
+    hostname: String,
+    port: u32
+}
+
+impl BaseLink {
+    fn get_base_url(&mut self) -> String {
+        let base_url =  format!("http://{}:{}", self.hostname, self.port); 
+        return  base_url.to_string();
+    }
+}
 
 
+    
 #[derive(Clone, Serialize)]
 pub struct Link {
     href: String,
@@ -40,7 +53,12 @@ pub struct Versions {
 
 
 fn get_base_url() -> String {
-    return "http://localhost:8080".to_string();
+    let mut base = BaseLink{
+        hostname: "localhost".to_string(),
+        port:8443
+    };
+
+    return  base.get_base_url();
 }
 
 fn get_v3_url() -> String {
