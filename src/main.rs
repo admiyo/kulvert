@@ -6,26 +6,24 @@ use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Result};
  use rustls::internal::pemfile::{certs, rsa_private_keys};
 use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig};
 
-use serde::{de, ser, Serialize};
+use serde::{Serialize};
 
 mod versions;
 mod html;
 
 
 async fn v3(req: HttpRequest) -> Result<HttpResponse> {
-
     let v = versions::get_v3();
-    let j = serde_json::to_string(&v).unwrap();
     let r = req.headers().get("accept");
     match r {
-        Some(accepts) => return select_render("versions", accepts, &v),
+        Some(accepts) => return select_render(accepts, &v),
         None => return  Ok(HttpResponse::Ok()
                            .content_type("text/html; charset=utf-8")
                            .body("no accepts header"))
     }
 }
 
-fn select_render<T>(title: &str, value: &HeaderValue, v: &T) -> Result<HttpResponse>
+fn select_render<T>(value: &HeaderValue, v: &T) -> Result<HttpResponse>
 where
     T: Serialize,
 {
@@ -49,9 +47,9 @@ where
 
 async fn versions(req: HttpRequest) -> Result<HttpResponse> {
     let r = req.headers().get("accept");
-    let mut v = versions::get_versions();
+    let v = versions::get_versions();
     match r {
-        Some(accepts) => return select_render("versions", accepts, &v),
+        Some(accepts) => return select_render(accepts, &v),
         None => return  Ok(HttpResponse::Ok()
                            .content_type("text/html; charset=utf-8")
                            .body("no accepts header"))

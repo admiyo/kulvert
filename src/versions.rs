@@ -45,7 +45,7 @@ pub struct Versions {
 
 
 fn get_base_url() -> String {
-    let mut base = BaseLink{
+    let base = BaseLink{
         hostname: "localhost".to_string(),
         port:8443
     };
@@ -125,40 +125,4 @@ pub fn get_versions() -> Versions{
     };
     return a;
     
-}
-
-
-pub fn render_html_page(title: String,body: String) -> String{
-        let output = format!("
-<!doctype html>
-<html>
-    <head>
-        <meta charset=utf-8>
-        <title>{}</title>
-    </head>
-    <body>
-{}
-    </body>
-</html>", title, body);
-        output
-    }
-
-
-pub fn html_version_body(version: Version) -> String {
-    format!("
-        <dl>
-        <dt>id: </dt><dd>{}</dd>
-        <dt>updated: </dt><dd>{}</dd>
-        <dt>id</dt><dd>{}</dd>
-        </dl>", version.id ,version.status, version.updated)
-}
-
-pub fn html_versions_page(versions: &Versions) -> String {
-    return render_html_page("version".to_string(),
-                            html_versions_body(versions));
-}
-
-pub fn html_versions_body(versions: &Versions) -> String {
-    let mut body = String::from("");
-    body
 }
