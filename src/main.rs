@@ -10,14 +10,6 @@ use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig
 mod versions;
 mod html;
 
-async fn versions(req: HttpRequest) -> Result<HttpResponse> {        
-    println!("REQ: {:?}", req);
-    let v = versions::get_versions();
-    let j = serde_json::to_string(&v).unwrap();
-    Ok(HttpResponse::Ok()
-        .content_type("application/json; charset=utf-8")
-        .body(j))
-}
 
 async fn v3(req: HttpRequest) -> Result<HttpResponse> {    
     let accepts = req.headers().get("accept");
@@ -28,41 +20,43 @@ async fn v3(req: HttpRequest) -> Result<HttpResponse> {
     Ok(HttpResponse::Ok()
         .content_type("application/json; charset=utf-8")
         .body(j))
-
 }
 
-fn select_render(value: &HeaderValue) -> String{
+fn select_render(title: &str, value: &HeaderValue,v: &versions::Versions ) -> Result<HttpResponse>{
     let split = value.to_str().unwrap().split(",");
     for s in split {
         if s == "text/html"{
-            return html::content();
-        }else if s == "application/xhtml+xml" {
-            return html::content();
+            return Ok(HttpResponse::Ok()
+                      .content_type("text/html; charset=utf-8")
+                      .body(html::to_string(v).unwrap()))
+//        }else if s == "application/xhtml+xml" {
+//            return Ok(HttpResponse::Ok()
+//                      .content_type("text/html; charset=utf-8")
+//                      .body(versions::render_html_page(title.to_string(),
+//                                                       versions::html_versions_body(v))))
         }else if s==  "application/json" {
-            let v = versions::get_versions();
             let j = serde_json::to_string(&v).unwrap();
-            return j;
+            return Ok(HttpResponse::Ok()
+               .content_type("application/json; charset=utf-8")
+               .body(j));
         }
     }
     //
-    return "No Known Content Type Accepted".to_string();
-}
-
-async fn index(req: HttpRequest) -> Result<HttpResponse> {
-
-    let r = req.headers().get("accept");
-
-    let s: String;
-    match r {
-        Some(accepts) => s = select_render(accepts),
-        None =>  s = "No accept header".to_string(),
-    }    
     Ok(HttpResponse::Ok()
-        .content_type("text/html; charset=utf-8")
-        .body(s))
+       .content_type("text/html; charset=utf-8")
+       .body("No Known Content Type Accepted".to_string()))
 }
 
-
+async fn versions(req: HttpRequest) -> Result<HttpResponse> {
+    let r = req.headers().get("accept");
+    let mut v = versions::get_versions();
+    match r {
+        Some(accepts) => return select_render("versions", accepts, &v),
+        None => return  Ok(HttpResponse::Ok()
+                           .content_type("text/html; charset=utf-8")
+                           .body("no accepts header"))
+    }    
+}
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -84,13 +78,11 @@ async fn main() -> std::io::Result<()> {
         std::env::set_var("RUST_LOG", "actix_web=info");
     }
     env_logger::init();
-
     
     HttpServer::new(|| {
         App::new()
             .service(web::resource("/").to(versions))
             .service(web::resource("/v3").to(v3))
-            .service(web::resource("/index").to(index))
              })
         .bind_rustls("127.0.0.1:8443", config)?
         .run()

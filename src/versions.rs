@@ -1,5 +1,6 @@
 use serde::Serialize;
 
+
 #[derive(Clone, Serialize)]
 pub struct BaseLink {
     hostname: String,
@@ -12,7 +13,6 @@ impl BaseLink {
         return  base_url.to_string();
     }
 }
-
 
     
 #[derive(Clone, Serialize)]
@@ -116,7 +116,6 @@ pub fn get_v3_summary() -> Version{
     return a;
 }
 
-
 pub fn get_v3() -> Version{
     let a = Version {
         status: "stable".to_string(),
@@ -138,3 +137,38 @@ pub fn get_versions() -> Versions{
     
 }
 
+
+pub fn render_html_page(title: String,body: String) -> String{
+        let output = format!("
+<!doctype html>
+<html>
+    <head>
+        <meta charset=utf-8>
+        <title>{}</title>
+    </head>
+    <body>
+{}
+    </body>
+</html>", title, body);
+        output
+    }
+
+
+pub fn html_version_body(version: Version) -> String {
+    format!("
+        <dl>
+        <dt>id: </dt><dd>{}</dd>
+        <dt>updated: </dt><dd>{}</dd>
+        <dt>id</dt><dd>{}</dd>
+        </dl>", version.id ,version.status, version.updated)
+}
+
+pub fn html_versions_page(versions: &Versions) -> String {
+    return render_html_page("version".to_string(),
+                            html_versions_body(versions));
+}
+
+pub fn html_versions_body(versions: &Versions) -> String {
+    let mut body = String::from("");
+    body
+}
