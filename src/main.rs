@@ -3,18 +3,20 @@ use std::fs::File;
 use std::io::BufReader;
 use http::HeaderValue;
 
-use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder, Result};
+use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Result};
  use rustls::internal::pemfile::{certs, rsa_private_keys};
 use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig};
 
 mod versions;
 mod html;
 
-async fn versions(req: HttpRequest) -> impl Responder {
+async fn versions(req: HttpRequest) -> Result<HttpResponse> {        
     println!("REQ: {:?}", req);
     let v = versions::get_versions();
-    let j = serde_json::to_string(&v);
-    return j;
+    let j = serde_json::to_string(&v).unwrap();
+    Ok(HttpResponse::Ok()
+        .content_type("application/json; charset=utf-8")
+        .body(j))
 }
 
 async fn v3(req: HttpRequest) -> Result<HttpResponse> {    
