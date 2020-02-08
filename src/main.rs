@@ -26,7 +26,6 @@ async fn v3(req: HttpRequest) -> impl Responder {
     return j;
 }
 
-
 fn select_render(value: &HeaderValue) -> String{
     let split = value.to_str().unwrap().split(",");
     for s in split {
@@ -34,14 +33,14 @@ fn select_render(value: &HeaderValue) -> String{
             return html::content();
         }else if s == "application/xhtml+xml" {
             return html::content();
-        }else {
+        }else if s==  "application/json" {
             let v = versions::get_versions();
             let j = serde_json::to_string(&v).unwrap();
             return j;
         }
     }
-    //Should never reach here
-    return "".to_string();
+    //
+    return "No Known Content Type Accepted".to_string();
 }
 
 async fn index(req: HttpRequest) -> Result<HttpResponse> {
@@ -52,12 +51,7 @@ async fn index(req: HttpRequest) -> Result<HttpResponse> {
     match r {
         Some(accepts) => s = select_render(accepts),
         None =>  s = "No accept header".to_string(),
-    }
-    
-    
-    //println!("REQ accepts: {:?}", accepts);
-    
-
+    }    
     Ok(HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(s))
