@@ -17,13 +17,16 @@ async fn versions(req: HttpRequest) -> impl Responder {
     return j;
 }
 
-async fn v3(req: HttpRequest) -> impl Responder {
+async fn v3(req: HttpRequest) -> Result<HttpResponse> {    
     let accepts = req.headers().get("accept");
     println!("REQ accepts: {:?}", accepts);
 
     let v = versions::get_v3();
-    let j = serde_json::to_string(&v);
-    return j;
+    let j = serde_json::to_string(&v).unwrap();
+    Ok(HttpResponse::Ok()
+        .content_type("application/json; charset=utf-8")
+        .body(j))
+
 }
 
 fn select_render(value: &HeaderValue) -> String{
