@@ -7,14 +7,7 @@ pub struct BaseLink {
     port: u32
 }
 
-impl BaseLink {
-    fn get_base_url(&mut self) -> String {
-        let base_url =  format!("http://{}:{}", self.hostname, self.port); 
-        return  base_url.to_string();
-    }
-}
 
-    
 #[derive(Clone, Serialize)]
 pub struct Link {
     href: String,
@@ -45,7 +38,6 @@ pub struct User {
     enabled: bool,
 }
 
-
 #[derive(Clone, Serialize)]
 pub struct Versions {
     versions: Vec<Version>
@@ -57,15 +49,13 @@ fn get_base_url() -> String {
         hostname: "localhost".to_string(),
         port:8443
     };
-
-    return  base.get_base_url();
+    let base_url =  format!("http://{}:{}", base.hostname, base.port); 
+    return  base_url.to_string();
 }
 
 fn get_v3_url() -> String {
     format!("{}{}", get_base_url(), "/v3")
 }
-
-
 
 fn get_json_media_type() -> [MediaType; 1] {
     let a = MediaType {
