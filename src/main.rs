@@ -9,7 +9,7 @@ use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig
 use serde::{Serialize};
 
 mod html;
-mod users;
+mod idp;
 mod versions;
 
 
@@ -57,9 +57,9 @@ async fn versions(req: HttpRequest) -> Result<HttpResponse> {
     }
 }
 
-async fn users(req: HttpRequest) -> Result<HttpResponse> {
+async fn idps(req: HttpRequest) -> Result<HttpResponse> {
     let r = req.headers().get("accept");
-    let v = users::get_users();
+    let v = idp::get_idps();
     match r {
         Some(accepts) => return select_render(accepts, &v),
         None => return  Ok(HttpResponse::Ok()
@@ -94,7 +94,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(web::resource("/").to(versions))
             .service(web::resource("/v3").to(v3))
-            .service(web::resource("/v3/users").to(users))
+            .service(web::resource("/v3/idps").to(idps))
              })
         .bind_rustls("127.0.0.1:8443", config)?
         .run()

@@ -2,13 +2,13 @@ use serde::Serialize;
 
 
 #[derive(Clone, Serialize)]
-pub struct Users {
-    users: Vec<Users>,
+pub struct IDPs {
+    idps: Vec<IDP>,
 
 }
 
 #[derive(Clone, Serialize)]
-pub struct User {
+pub struct IDP {
     id: String,
     name: String,
     provider: String,
@@ -16,9 +16,9 @@ pub struct User {
 }
 
 
-pub fn get_users() -> Users{
-    let a = Users {
-        users : [].to_vec()
+pub fn get_idps() -> IDPs{
+    let a = IDPs {
+        idps : [].to_vec()
     };
     return a;
 }

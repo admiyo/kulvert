@@ -30,13 +30,6 @@ pub struct Version {
     links: Vec<Link>
 }
 
-#[derive(Clone, Serialize)]
-pub struct User {
-    id: String,
-    name: String,
-    provider: String,
-    enabled: bool,
-}
 
 #[derive(Clone, Serialize)]
 pub struct Versions {
@@ -85,7 +78,7 @@ fn get_v3_links() -> [Link; 2]{
 
 
     let userslink = Link{
-        href: "https://localhost:8443/v3/users".to_string(),
+        href: "https://localhost:8443/v3/idps".to_string(),
         htype: "text/html".to_string(),
         rel: "users".to_string()
     };
