@@ -8,8 +8,9 @@ use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig
 
 use serde::{Serialize};
 
-mod versions;
 mod html;
+mod users;
+mod versions;
 
 
 async fn v3(req: HttpRequest) -> Result<HttpResponse> {
@@ -56,6 +57,18 @@ async fn versions(req: HttpRequest) -> Result<HttpResponse> {
     }
 }
 
+async fn users(req: HttpRequest) -> Result<HttpResponse> {
+    let r = req.headers().get("accept");
+    let v = users::get_users();
+    match r {
+        Some(accepts) => return select_render(accepts, &v),
+        None => return  Ok(HttpResponse::Ok()
+                           .content_type("text/html; charset=utf-8")
+                           .body("no accepts header"))
+    }
+}
+
+
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
 
@@ -81,6 +94,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(web::resource("/").to(versions))
             .service(web::resource("/v3").to(v3))
+            .service(web::resource("/v3/users").to(users))
              })
         .bind_rustls("127.0.0.1:8443", config)?
         .run()
