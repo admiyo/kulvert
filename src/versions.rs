@@ -49,7 +49,7 @@ fn get_base_url() -> String {
         hostname: "localhost".to_string(),
         port:8443
     };
-    let base_url =  format!("http://{}:{}", base.hostname, base.port); 
+    let base_url =  format!("https://{}:{}", base.hostname, base.port); 
     return  base_url.to_string();
 }
 
@@ -85,7 +85,7 @@ fn get_v3_links() -> [Link; 2]{
 
 
     let userslink = Link{
-        href: "http://localhost:8080/v3/users".to_string(),
+        href: "https://localhost:8080/v3/users".to_string(),
         htype: "text/html".to_string(),
         rel: "users".to_string()
     };

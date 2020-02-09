@@ -515,14 +515,22 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-
-        self.output += "<dt>";
+        self.output += "<dt   hhhh>";
         key.serialize(&mut **self)?;
         self.output += "</dt>\n<dd>";
-        let r = value.serialize(&mut **self);
-        self.output += "</dd>\n";
+        let r: Result<()>;
+        
+        if key == "href" {
+            self.output += "<a href=\"";
+            value.serialize(&mut **self);
+            self.output += "\">";
+            r = value.serialize(&mut **self);
+            self.output += "</a>\n";
+        }else{
+            r = value.serialize(&mut **self);
+        }
+        self.output += "</dd>\n";            
         r
-
     }
 
     fn end(self) -> Result<()> {
