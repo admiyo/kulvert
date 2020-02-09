@@ -59,12 +59,24 @@ impl Display for Error {
 
 impl std::error::Error for Error {
     fn description(&self) -> &str {
-        "description goes here"
-        //        match *self {
-//            Error::Message(ref msg) => msg,//
-//            Error::Eof => "unexpected end of input",
-            /* and so forth */
-//        }
+        match self {
+            Error::Message(ref msg) => msg,//
+            Error::Eof => "unexpected end of input",
+            Error::Syntax => "Syntax",
+            Error::ExpectedBoolean => "Expected Boolean",
+            Error::ExpectedInteger => "Expected Integer",
+            Error::ExpectedString => "Expected String",
+            Error::ExpectedNull => "Expected Null",
+            Error::ExpectedArray => "Expected Array",
+            Error::ExpectedArrayComma => "Expected Array Comma",
+            Error::ExpectedArrayEnd => "Expected Array End",
+            Error::ExpectedMap => "Expected Map",
+            Error::ExpectedMapColon => "Expected Map Colon",
+            Error::ExpectedMapComma => "Expected Map Comma",
+            Error::ExpectedMapEnd => "Expected Map End ",
+            Error::ExpectedEnum  => "Expected Enum",
+            Error::TrailingCharacters => "Trailing Characters",
+        }
     }
 }
 
@@ -444,9 +456,9 @@ impl<'a> ser::SerializeTupleVariant for &'a mut Serializer {
         T: ?Sized + Serialize,
     {
         self.output += "<li>";
-        let r = value.serialize(&mut **self);
+        value.serialize(&mut **self)?;
         self.output += "</li>\n";
-        r
+        Ok(())
     }
 
 
@@ -518,19 +530,18 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
         self.output += "<dt   hhhh>";
         key.serialize(&mut **self)?;
         self.output += "</dt>\n<dd>";
-        let r: Result<()>;
         
         if key == "href" {
             self.output += "<a href=\"";
-            value.serialize(&mut **self);
+            value.serialize(&mut **self)?;
             self.output += "\">";
-            r = value.serialize(&mut **self);
+            value.serialize(&mut **self)?;
             self.output += "</a>\n";
         }else{
-            r = value.serialize(&mut **self);
+            value.serialize(&mut **self)?;
         }
         self.output += "</dd>\n";            
-        r
+        Ok(())
     }
 
     fn end(self) -> Result<()> {
@@ -552,9 +563,9 @@ impl<'a> ser::SerializeStructVariant for &'a mut Serializer {
         self.output += "<dt>";
         key.serialize(&mut **self)?;
         self.output += "</dt><dd>";
-        let r = value.serialize(&mut **self);
+        value.serialize(&mut **self)?;
         self.output += "</dd>";
-        r
+        Ok(())
     }
 
     fn end(self) -> Result<()> {
