@@ -87,7 +87,9 @@ where
     let mut serializer = Serializer {
         output: String::new(),
     };
+    serializer.output += "<html>\n<title>Add Title Here</title>\n<body>\n";
     value.serialize(&mut serializer)?;
+    serializer.output += "</body>\n</html>\n";
     Ok(serializer.output)
 }
 
@@ -272,11 +274,11 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        self.output += "{";
+        self.output += "<dt>";
         variant.serialize(&mut *self)?;
-        self.output += ":";
+        self.output += "</dt><dd>";
         value.serialize(&mut *self)?;
-        self.output += "}";
+        self.output += "</dd c>";
         Ok(())
     }
 
@@ -291,7 +293,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     // explicitly in the serialized form. Some serializers may only be able to
     // support sequences for which the length is known up front.
     fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq> {
-        self.output += "[";
+        self.output += "<ol>\n";
         Ok(self)
     }
 
@@ -329,7 +331,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
 
     // Maps are represented in JSON as `{ K: V, K: V, ... }`.
     fn serialize_map(self, _len: Option<usize>) -> Result<Self::SerializeMap> {
-        self.output += "{";
+        self.output += "<dl>\n";
         Ok(self)
     }
 
@@ -380,15 +382,13 @@ impl<'a> ser::SerializeSeq for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('[') {
-            self.output += ",";
-        }
+        self.output += "<li>";
         value.serialize(&mut **self)
     }
 
     // Close the sequence.
     fn end(self) -> Result<()> {
-        self.output += "]";
+        self.output += "</li>\n";
         Ok(())
     }
 }
@@ -402,14 +402,12 @@ impl<'a> ser::SerializeTuple for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('[') {
-            self.output += ",";
-        }
+        self.output += "<li>";
         value.serialize(&mut **self)
     }
 
     fn end(self) -> Result<()> {
-        self.output += "]";
+        self.output += "</li>\n";
         Ok(())
     }
 }
@@ -423,14 +421,12 @@ impl<'a> ser::SerializeTupleStruct for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('[') {
-            self.output += ",";
-        }
+        self.output += "<li>";
         value.serialize(&mut **self)
     }
 
     fn end(self) -> Result<()> {
-        self.output += "]";
+        self.output += "</li>";
         Ok(())
     }
 }
@@ -452,14 +448,12 @@ impl<'a> ser::SerializeTupleVariant for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('[') {
-            self.output += ",";
-        }
+        self.output += "<li>";
         value.serialize(&mut **self)
     }
 
     fn end(self) -> Result<()> {
-        self.output += "]}";
+        self.output += "</li>";
         Ok(())
     }
 }
@@ -488,10 +482,8 @@ impl<'a> ser::SerializeMap for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('{') {
-            self.output += ",";
-        }
-        key.serialize(&mut **self)
+        self.output += "<dt>";
+        key.serialize(&mut **self)            
     }
 
     // It doesn't make a difference whether the colon is printed at the end of
@@ -501,12 +493,14 @@ impl<'a> ser::SerializeMap for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        self.output += ":";
-        value.serialize(&mut **self)
+        self.output += "</dt><dd>\n";
+        let r = value.serialize(&mut **self);
+        self.output += "</dd a>\n";
+        r
     }
 
     fn end(self) -> Result<()> {
-        self.output += "}";
+        self.output += "</dl>\n";
         Ok(())
     }
 }
@@ -521,16 +515,15 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('{') {
-            self.output += ",";
-        }
+
+        self.output += "<dt>";
         key.serialize(&mut **self)?;
-        self.output += ":";
+        self.output += "</dt><dd>";
         value.serialize(&mut **self)
     }
 
     fn end(self) -> Result<()> {
-        self.output += "}";
+        self.output += "</dd>";
         Ok(())
     }
 }
@@ -545,16 +538,16 @@ impl<'a> ser::SerializeStructVariant for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('{') {
-            self.output += ",";
-        }
+        self.output += "<dt>";
         key.serialize(&mut **self)?;
-        self.output += ":";
-        value.serialize(&mut **self)
+        self.output += "</dt><dd>";
+        let r = value.serialize(&mut **self);
+        self.output += "</dd>";
+        r
     }
 
     fn end(self) -> Result<()> {
-        self.output += "}}";
+        self.output += " asdasdasd   ";
         Ok(())
     }
 }
