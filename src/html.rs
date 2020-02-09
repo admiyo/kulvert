@@ -184,9 +184,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     // get the idea. For example it would emit invalid JSON if the input string
     // contains a '"' character.
     fn serialize_str(self, v: &str) -> Result<()> {
-        self.output += "\"";
         self.output += v;
-        self.output += "\"";
         Ok(())
     }
 
@@ -293,7 +291,6 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     // explicitly in the serialized form. Some serializers may only be able to
     // support sequences for which the length is known up front.
     fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq> {
-        self.output += "<ol>\n";
         Ok(self)
     }
 
@@ -382,13 +379,11 @@ impl<'a> ser::SerializeSeq for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        self.output += "<li>";
         value.serialize(&mut **self)
     }
 
     // Close the sequence.
     fn end(self) -> Result<()> {
-        self.output += "</li>\n";
         Ok(())
     }
 }
@@ -449,11 +444,13 @@ impl<'a> ser::SerializeTupleVariant for &'a mut Serializer {
         T: ?Sized + Serialize,
     {
         self.output += "<li>";
-        value.serialize(&mut **self)
+        let r = value.serialize(&mut **self);
+        self.output += "</li>\n";
+        r
     }
 
+
     fn end(self) -> Result<()> {
-        self.output += "</li>";
         Ok(())
     }
 }
@@ -483,7 +480,10 @@ impl<'a> ser::SerializeMap for &'a mut Serializer {
         T: ?Sized + Serialize,
     {
         self.output += "<dt>";
-        key.serialize(&mut **self)            
+        let r = key.serialize(&mut **self);
+        self.output += "</dt>\n";
+        r
+
     }
 
     // It doesn't make a difference whether the colon is printed at the end of
@@ -493,9 +493,9 @@ impl<'a> ser::SerializeMap for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        self.output += "</dt><dd>\n";
+        self.output += "<dd>";
         let r = value.serialize(&mut **self);
-        self.output += "</dd a>\n";
+        self.output += "</dd>\n";
         r
     }
 
@@ -518,12 +518,15 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
 
         self.output += "<dt>";
         key.serialize(&mut **self)?;
-        self.output += "</dt><dd>";
-        value.serialize(&mut **self)
+        self.output += "</dt>\n<dd>";
+        let r = value.serialize(&mut **self);
+        self.output += "</dd>\n";
+        r
+
     }
 
     fn end(self) -> Result<()> {
-        self.output += "</dd>";
+        self.output += "</dl>\n";
         Ok(())
     }
 }
