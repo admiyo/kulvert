@@ -8,6 +8,7 @@ use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig
 
 use serde::{Serialize};
 
+mod access;
 mod html;
 mod identity;
 mod versions;
@@ -57,6 +58,19 @@ async fn versions(req: HttpRequest) -> Result<HttpResponse> {
     }
 }
 
+async fn namespace(req: HttpRequest) -> Result<HttpResponse> {
+    let r = req.headers().get("accept");
+    let v = access::get_namespace();
+    match r {
+        Some(accepts) => return select_render(accepts, &v),
+        None => return  Ok(HttpResponse::Ok()
+                           .content_type("text/html; charset=utf-8")
+                           .body("no accepts header"))
+    }
+}
+
+
+
 async fn identity_providers(req: HttpRequest) -> Result<HttpResponse> {
     let r = req.headers().get("accept");
     let v = identity::get_providers();
@@ -94,8 +108,11 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(web::resource("/").to(versions))
             .service(web::resource("/v3").to(v3))
+            .service(web::resource("/v3/").to(v3))
             .service(web::resource("/v3/identity_providers").
                      to(identity_providers))
+            .service(web::resource("/v3/namespace").
+                     to(namespace))
              })
         .bind_rustls("127.0.0.1:8443", config)?
         .run()

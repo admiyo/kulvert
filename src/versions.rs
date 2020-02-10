@@ -69,7 +69,7 @@ fn get_v3_summary_links() -> [Link; 1]{
 }
 
 
-fn get_v3_links() -> [Link; 2]{
+fn get_v3_links() -> [Link; 3]{
     let selflink = Link{
         href: get_v3_url().to_string(),
         htype: "text/html".to_string(),
@@ -77,13 +77,20 @@ fn get_v3_links() -> [Link; 2]{
     };
 
 
-    let userslink = Link{
+    let identity_providers_link = Link{
         href: "https://localhost:8443/v3/identity_providers".to_string(),
         htype: "text/html".to_string(),
-        rel: "users".to_string()
+        rel: "identity_providers".to_string()
     };
 
-    return [selflink, userslink];
+    let namespace_link = Link{
+        href: "https://localhost:8443/v3/namespace".to_string(),
+        htype: "text/html".to_string(),
+        rel: "namespace".to_string()
+    };
+
+    
+    return [selflink, identity_providers_link, namespace_link];
 }
 
 
