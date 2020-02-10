@@ -9,7 +9,7 @@ use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig
 use serde::{Serialize};
 
 mod html;
-mod idp;
+mod identity;
 mod versions;
 
 
@@ -59,7 +59,7 @@ async fn versions(req: HttpRequest) -> Result<HttpResponse> {
 
 async fn idps(req: HttpRequest) -> Result<HttpResponse> {
     let r = req.headers().get("accept");
-    let v = idp::get_idps();
+    let v = identity::get_idps();
     match r {
         Some(accepts) => return select_render(accepts, &v),
         None => return  Ok(HttpResponse::Ok()
