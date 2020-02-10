@@ -527,7 +527,7 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        self.output += "<dt   hhhh>";
+        self.output += "<dt>";
         key.serialize(&mut **self)?;
         self.output += "</dt>\n<dd>";
         
