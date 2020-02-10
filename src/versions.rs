@@ -78,7 +78,7 @@ fn get_v3_links() -> [Link; 2]{
 
 
     let userslink = Link{
-        href: "https://localhost:8443/v3/idps".to_string(),
+        href: "https://localhost:8443/v3/identity_providers".to_string(),
         htype: "text/html".to_string(),
         rel: "users".to_string()
     };

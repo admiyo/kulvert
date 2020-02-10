@@ -57,9 +57,9 @@ async fn versions(req: HttpRequest) -> Result<HttpResponse> {
     }
 }
 
-async fn idps(req: HttpRequest) -> Result<HttpResponse> {
+async fn identity_providers(req: HttpRequest) -> Result<HttpResponse> {
     let r = req.headers().get("accept");
-    let v = identity::get_idps();
+    let v = identity::get_providers();
     match r {
         Some(accepts) => return select_render(accepts, &v),
         None => return  Ok(HttpResponse::Ok()
@@ -94,7 +94,8 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(web::resource("/").to(versions))
             .service(web::resource("/v3").to(v3))
-            .service(web::resource("/v3/idps").to(idps))
+            .service(web::resource("/v3/identity_providers").
+                     to(identity_providers))
              })
         .bind_rustls("127.0.0.1:8443", config)?
         .run()
