@@ -82,6 +82,21 @@ async fn identity_providers(req: HttpRequest) -> Result<HttpResponse> {
     }
 }
 
+async fn identity_provider(req: HttpRequest) -> Result<HttpResponse> {
+    let r = req.headers().get("accept");
+
+    let id = req.match_info().get("id").unwrap_or("none");
+    
+    let v = identity::get_provider(id);
+    match r {
+        Some(accepts) => return select_render(accepts, &v),
+        None => return  Ok(HttpResponse::Ok()
+                           .content_type("text/html; charset=utf-8")
+                           .body("no accepts header"))
+    }
+}
+
+
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
 
@@ -110,6 +125,9 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/v3/").to(v3))
             .service(web::resource("/v3/identity_providers").
                      to(identity_providers))
+            .service(web::resource("/v3/identity_providers/{id}").
+                     to(identity_provider ))
+
             .service(web::resource("/v3/namespace").
                      to(namespace))
              })
