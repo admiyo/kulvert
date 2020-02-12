@@ -14,6 +14,8 @@ mod identity;
 mod versions;
 
 
+mod links;
+
 async fn v3(req: HttpRequest) -> Result<HttpResponse> {
     let v = versions::get_v3();
     let r = req.headers().get("accept");
