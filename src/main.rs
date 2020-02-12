@@ -71,8 +71,6 @@ async fn namespace(req: HttpRequest) -> Result<HttpResponse> {
     }
 }
 
-
-
 async fn identity_providers(req: HttpRequest) -> Result<HttpResponse> {
     let r = req.headers().get("accept");
     let v = identity::get_providers();
@@ -83,7 +81,6 @@ async fn identity_providers(req: HttpRequest) -> Result<HttpResponse> {
                            .body("no accepts header"))
     }
 }
-
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

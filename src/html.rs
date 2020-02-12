@@ -12,16 +12,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 // processed.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Error {
-    // One or more variants that can be created by data structures through the
-    // `ser::Error` and `de::Error` traits. For example the Serialize impl for
-    // Mutex<T> might return an error because the mutex is poisoned, or the
-    // Deserialize impl for a struct may return an error because a required
-    // field is missing.
     Message(String),
-
-    // Zero or more variants that can be created directly by the Serializer and
-    // Deserializer without going through `ser::Error` and `de::Error`. These
-    // are specific to the format, in this case JSON.
     Eof,
     Syntax,
     ExpectedBoolean,
@@ -83,7 +74,7 @@ impl std::error::Error for Error {
 
 
 pub struct Serializer {
-    // This string starts empty and JSON is appended as values are serialized.
+    // This string starts empty and HTML is appended as values are serialized.
     output: String,
 }
 
@@ -338,17 +329,12 @@ impl<'a> ser::Serializer for &'a mut Serializer {
         Ok(self)
     }
 
-    // Maps are represented in JSON as `{ K: V, K: V, ... }`.
+    // Maps are represented in HTML as  as Defintinion Lists .
     fn serialize_map(self, _len: Option<usize>) -> Result<Self::SerializeMap> {
         self.output += "<dl>\n";
         Ok(self)
     }
 
-    // Structs look just like maps in JSON. In particular, JSON requires that we
-    // serialize the field names of the struct. Other formats may be able to
-    // omit the field names when serializing structs because the corresponding
-    // Deserialize implementation is required to know what the keys are without
-    // looking at the serialized data.
     fn serialize_struct(
         self,
         _name: &'static str,
@@ -569,52 +555,6 @@ impl<'a> ser::SerializeStructVariant for &'a mut Serializer {
     }
 
     fn end(self) -> Result<()> {
-        self.output += " asdasdasd   ";
         Ok(())
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-#[test]
-fn test_struct() {
-    #[derive(Serialize)]
-    struct Test {
-        int: u32,
-        seq: Vec<&'static str>,
-    }
-
-    let test = Test {
-        int: 1,
-        seq: vec!["a", "b"],
-    };
-    let expected = r#"{"int":1,"seq":["a","b"]}"#;
-    assert_eq!(to_string(&test).unwrap(), expected);
-}
-
-#[test]
-fn test_enum() {
-    #[derive(Serialize)]
-    enum E {
-        Unit,
-        Newtype(u32),
-        Tuple(u32, u32),
-        Struct { a: u32 },
-    }
-
-    let u = E::Unit;
-    let expected = r#""Unit""#;
-    assert_eq!(to_string(&u).unwrap(), expected);
-
-    let n = E::Newtype(1);
-    let expected = r#"{"Newtype":1}"#;
-    assert_eq!(to_string(&n).unwrap(), expected);
-
-    let t = E::Tuple(1, 2);
-    let expected = r#"{"Tuple":[1,2]}"#;
-    assert_eq!(to_string(&t).unwrap(), expected);
-
-    let s = E::Struct { a: 1 };
-    let expected = r#"{"Struct":{"a":1}}"#;
-    assert_eq!(to_string(&s).unwrap(), expected);
 }

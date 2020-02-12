@@ -18,7 +18,7 @@ pub struct Versions {
 
 
 
-fn get_v3_url() -> String {
+pub fn get_v3_url() -> String {
     format!("{}{}", super::links::get_base_url(), "/v3")
 }
 
