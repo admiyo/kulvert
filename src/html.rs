@@ -71,11 +71,10 @@ impl std::error::Error for Error {
     }
 }
 
-
-
 pub struct Serializer {
     // This string starts empty and HTML is appended as values are serialized.
     output: String,
+    is_a: bool, 
 }
 
 // By convention, the public API of a Serde serializer is one or more `to_abc`
@@ -89,6 +88,7 @@ where
 {
     let mut serializer = Serializer {
         output: String::new(),
+        is_a: false
     };
     serializer.output += "<html>\n<title>Add Title Here</title>\n<body>\n";
     value.serialize(&mut serializer)?;
@@ -294,6 +294,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     // explicitly in the serialized form. Some serializers may only be able to
     // support sequences for which the length is known up front.
     fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq> {
+        self.output += "<ul>\n";
         Ok(self)
     }
 
@@ -331,7 +332,11 @@ impl<'a> ser::Serializer for &'a mut Serializer {
 
     // Maps are represented in HTML as  as Defintinion Lists .
     fn serialize_map(self, _len: Option<usize>) -> Result<Self::SerializeMap> {
-        self.output += "<dl>\n";
+        if self.is_a {
+            self.output += "";
+        }else {
+            self.output += "<dl>\n";
+        }
         Ok(self)
     }
 
@@ -377,11 +382,22 @@ impl<'a> ser::SerializeSeq for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        value.serialize(&mut **self)
+
+        self.output += "<li>";
+        if self.is_a{
+            self.output += "<a";
+        }        
+        let r = value.serialize(&mut **self);
+        if self.is_a {
+            self.output += "</a>";
+        }        
+        self.output += "</li>\n";
+        r
     }
 
     // Close the sequence.
     fn end(self) -> Result<()> {
+        self.output += "</ul>\n";
         Ok(())
     }
 }
@@ -396,11 +412,13 @@ impl<'a> ser::SerializeTuple for &'a mut Serializer {
         T: ?Sized + Serialize,
     {
         self.output += "<li>";
-        value.serialize(&mut **self)
+        let r = value.serialize(&mut **self);
+        self.output += "</li>\n";
+        r
     }
 
     fn end(self) -> Result<()> {
-        self.output += "</li>\n";
+        self.output += "</ul>\n";
         Ok(())
     }
 }
@@ -419,7 +437,7 @@ impl<'a> ser::SerializeTupleStruct for &'a mut Serializer {
     }
 
     fn end(self) -> Result<()> {
-        self.output += "</li>";
+        self.output += "</ul>";
         Ok(())
     }
 }
@@ -481,7 +499,6 @@ impl<'a> ser::SerializeMap for &'a mut Serializer {
         let r = key.serialize(&mut **self);
         self.output += "</dt>\n";
         r
-
     }
 
     // It doesn't make a difference whether the colon is printed at the end of
@@ -503,6 +520,8 @@ impl<'a> ser::SerializeMap for &'a mut Serializer {
     }
 }
 
+
+
 // Structs are like maps in which the keys are constrained to be compile-time
 // constant strings.
 impl<'a> ser::SerializeStruct for &'a mut Serializer {
@@ -513,25 +532,36 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
     where
         T: ?Sized + Serialize,
     {
-        self.output += "<dt>";
-        key.serialize(&mut **self)?;
-        self.output += "</dt>\n<dd>";
-        
-        if key == "href" {
-            self.output += "<a href=\"";
+        if self.is_a{
+            self.output +=" ";
+            key.serialize(&mut **self)?;
+            self.output +="=\"";
             value.serialize(&mut **self)?;
-            self.output += "\">";
-            value.serialize(&mut **self)?;
-            self.output += "</a>\n";
-        }else{
-            value.serialize(&mut **self)?;
+            self.output +="\" ";
+            if key == "rel"{
+                self.output += ">";
+                value.serialize(&mut **self)?;
+            } 
+        } else {
+            self.output += "<dt>";
+            key.serialize(&mut **self)?;
+            self.output += "</dt>\n<dd>";
+            if key == "links" {
+                self.is_a = true;
+                value.serialize(&mut **self)?;
+                self.is_a = true;
+            }else{
+                value.serialize(&mut **self)?;
+            }
+            self.output += "</dd>\n";
         }
-        self.output += "</dd>\n";            
         Ok(())
     }
-
+    
     fn end(self) -> Result<()> {
-        self.output += "</dl>\n";
+        if !self.is_a{
+            self.output += "</dl>\n";
+        }
         Ok(())
     }
 }
