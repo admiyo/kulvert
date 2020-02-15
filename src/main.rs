@@ -131,7 +131,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/v3/namespace").
                      to(namespace))
              })
-        .bind_rustls("127.0.0.1:8443", config)?
+        .bind_rustls("0.0.0.0:8443", config)?
         .run()
         .await
 }
