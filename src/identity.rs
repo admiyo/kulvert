@@ -44,12 +44,9 @@ pub struct Login {
     enabled: bool,
 }
 
-
 pub fn get_identity_providers_href() -> String {
     super::versions::get_v3_url() + "/identity_providers"
 }
-
-
 
 pub fn get_identity_providers_link() -> super::links::Link {
     return super::links::Link{
