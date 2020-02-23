@@ -2,8 +2,10 @@ use std::fs::File;
 use std::io::BufReader;
 use http::HeaderValue;
 
+
+
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Result};
- use rustls::internal::pemfile::{certs, rsa_private_keys};
+use rustls::internal::pemfile::{certs, rsa_private_keys};
 use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig};
 
 use serde::{Serialize};
@@ -12,8 +14,6 @@ mod access;
 mod html;
 mod identity;
 mod versions;
-
-
 mod links;
 
 async fn v3(req: HttpRequest) -> Result<HttpResponse> {
@@ -99,8 +99,10 @@ async fn identity_provider(req: HttpRequest) -> Result<HttpResponse> {
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
+    
+    let insecure: bool = true;
 
-    // load ssl keys
+       // load ssl keys
     let cert_file = &mut BufReader::new(File::open("cert.pem").unwrap());
     let key_file = &mut BufReader::new(File::open("key.pem").unwrap());
     let cert_chain = certs(cert_file).unwrap();
@@ -118,7 +120,8 @@ async fn main() -> std::io::Result<()> {
     }
     env_logger::init();
 
-    HttpServer::new(|| {
+
+    let mut server = HttpServer::new(|| {
         App::new()
             .service(web::resource("/").to(versions))
             .service(web::resource("/v3").to(v3))
@@ -127,11 +130,17 @@ async fn main() -> std::io::Result<()> {
                      to(identity_providers))
             .service(web::resource("/v3/identity_providers/{id}").
                      to(identity_provider ))
-
+            
             .service(web::resource("/v3/namespace").
                      to(namespace))
-             })
-        .bind_rustls("0.0.0.0:8443", config)?
-        .run()
-        .await
+    });
+
+    server = { 
+        if insecure{
+            server.bind("0.0.0.0:8080")?
+        }else{
+            server.bind_rustls("0.0.0.0:8443", config)?
+        }
+    };
+    server.run().await
 }
