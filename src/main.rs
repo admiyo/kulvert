@@ -86,7 +86,7 @@ async fn identity_provider(req: HttpRequest) -> Result<HttpResponse> {
     let r = req.headers().get("accept");
 
     let id = req.match_info().get("id").unwrap_or("none");
-    
+
     let v = identity::get_provider(id);
     match r {
         Some(accepts) => return select_render(accepts, &v),
@@ -97,12 +97,8 @@ async fn identity_provider(req: HttpRequest) -> Result<HttpResponse> {
 }
 
 
-#[actix_rt::main]
-async fn main() -> std::io::Result<()> {
-    
-    let insecure: bool = true;
-
-       // load ssl keys
+fn load_config() -> ServerConfig {
+           // load ssl keys
     let cert_file = &mut BufReader::new(File::open("cert.pem").unwrap());
     let key_file = &mut BufReader::new(File::open("key.pem").unwrap());
     let cert_chain = certs(cert_file).unwrap();
@@ -113,6 +109,14 @@ async fn main() -> std::io::Result<()> {
     let mut config = ServerConfig::new(
         AllowAnyAnonymousOrAuthenticatedClient::new(root_store));
     config.set_single_cert(cert_chain, keys.remove(0)).unwrap();
+
+    config
+}
+
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
+
+    let insecure: bool = true;
 
 
     if std::env::var("RUST_LOG").is_err() {
@@ -130,15 +134,16 @@ async fn main() -> std::io::Result<()> {
                      to(identity_providers))
             .service(web::resource("/v3/identity_providers/{id}").
                      to(identity_provider ))
-            
+
             .service(web::resource("/v3/namespace").
                      to(namespace))
     });
 
-    server = { 
+    server = {
         if insecure{
             server.bind("0.0.0.0:8080")?
         }else{
+            let config = load_config();
             server.bind_rustls("0.0.0.0:8443", config)?
         }
     };
