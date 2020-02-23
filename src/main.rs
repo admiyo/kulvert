@@ -1,20 +1,15 @@
-use std::fs::File;
-use std::io::BufReader;
 use http::HeaderValue;
 
-
-
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Result};
-use rustls::internal::pemfile::{certs, rsa_private_keys};
-use rustls::{RootCertStore, AllowAnyAnonymousOrAuthenticatedClient, ServerConfig};
 
 use serde::{Serialize};
 
 mod access;
+mod config;
 mod html;
 mod identity;
-mod versions;
 mod links;
+mod versions;
 
 async fn v3(req: HttpRequest) -> Result<HttpResponse> {
     let v = versions::get_v3();
@@ -97,33 +92,11 @@ async fn identity_provider(req: HttpRequest) -> Result<HttpResponse> {
 }
 
 
-fn load_config() -> ServerConfig {
-           // load ssl keys
-    let cert_file = &mut BufReader::new(File::open("cert.pem").unwrap());
-    let key_file = &mut BufReader::new(File::open("key.pem").unwrap());
-    let cert_chain = certs(cert_file).unwrap();
-    let mut keys = rsa_private_keys(key_file).unwrap();
-    let mut root_store = RootCertStore::empty();
-    root_store.add(&cert_chain[0]).unwrap();
-
-    let mut config = ServerConfig::new(
-        AllowAnyAnonymousOrAuthenticatedClient::new(root_store));
-    config.set_single_cert(cert_chain, keys.remove(0)).unwrap();
-
-    config
-}
-
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
 
     let insecure: bool = true;
-
-
-    if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "actix_web=info");
-    }
-    env_logger::init();
-
+    config::set_logging();
 
     let mut server = HttpServer::new(|| {
         App::new()
@@ -134,7 +107,6 @@ async fn main() -> std::io::Result<()> {
                      to(identity_providers))
             .service(web::resource("/v3/identity_providers/{id}").
                      to(identity_provider ))
-
             .service(web::resource("/v3/namespace").
                      to(namespace))
     });
@@ -143,8 +115,8 @@ async fn main() -> std::io::Result<()> {
         if insecure{
             server.bind("0.0.0.0:8080")?
         }else{
-            let config = load_config();
-            server.bind_rustls("0.0.0.0:8443", config)?
+            let conf = config::load_config();
+            server.bind_rustls("0.0.0.0:8443", conf)?
         }
     };
     server.run().await
