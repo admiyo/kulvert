@@ -84,7 +84,7 @@ async fn identity_provider(req: HttpRequest) -> Result<HttpResponse> {
 
 
 #[actix_rt::main]
-pub async fn server_main(insecure: bool) -> std::io::Result<()> {
+pub async fn server_main(tls: bool) -> std::io::Result<()> {
     super::config::set_logging();
     
     let mut server = HttpServer::new(|| {
@@ -101,11 +101,11 @@ pub async fn server_main(insecure: bool) -> std::io::Result<()> {
     });
 
     server = {
-        if insecure{
-            server.bind("0.0.0.0:8080")?
-        }else{
+        if tls{
             let conf = super::config::load_config();
             server.bind_rustls("0.0.0.0:8443", conf)?
+        }else{
+            server.bind("0.0.0.0:8080")?
         }
     };
     server.run().await
