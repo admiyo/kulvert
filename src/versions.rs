@@ -16,15 +16,17 @@ pub struct Versions {
     versions: Vec<Version>
 }
 
-
-
 pub fn get_v3_url() -> String {
     "/v3".to_string()
 }
 
+pub fn build_v3_url(link: &str) -> String {
+    format!("/v3/{}", link).to_string()
+}
+
 pub fn get_v3_link(rel: &str) -> super::links::Link {
     return  super::links::Link{
-        href: get_v3_url().to_string(),
+        href: get_v3_url(),
         htype: "text/html".to_string(),
         rel: rel.to_string()
     }
@@ -32,7 +34,7 @@ pub fn get_v3_link(rel: &str) -> super::links::Link {
 
 fn get_v3_summary_links() -> [super::links::Link; 1]{
     let a = super::links::Link{
-        href: get_v3_url().to_string(),
+        href: get_v3_url(),
         htype: "text/html".to_string(),
         rel: "v3".to_string()
     };
@@ -42,26 +44,26 @@ fn get_v3_summary_links() -> [super::links::Link; 1]{
 
 fn get_v3_links() -> [super::links::Link; 3]{
     let selflink = super::links::Link{
-        href: get_v3_url().to_string(),
+        href: get_v3_url(),
         htype: "text/html".to_string(),
         rel: "self".to_string()
     };
 
 
     let identity_providers_link = super::links::Link{
-        href: "/v3/identity_providers".to_string(),
+        href: build_v3_url("identity_providers"),
         htype: "text/html".to_string(),
         rel: "identity_providers".to_string()
     };
 
-    let namespace_link = super::links::Link{
-        href: "/v3/namespace".to_string(),
+    let namespaces_link = super::links::Link{
+        href: build_v3_url("namespaces"),
         htype: "text/html".to_string(),
-        rel: "namespace".to_string()
+        rel: "namespaces".to_string()
     };
 
 
-    return [selflink, identity_providers_link, namespace_link];
+    return [selflink, identity_providers_link, namespaces_link];
 }
 
 

@@ -46,7 +46,7 @@ async fn versions(req: HttpRequest) -> Result<HttpResponse> {
     }
 }
 
-async fn namespace(req: HttpRequest) -> Result<HttpResponse> {
+async fn namespaces(req: HttpRequest) -> Result<HttpResponse> {
     let r = req.headers().get("accept");
     let v = super::access::get_namespace();
     match r {
@@ -96,8 +96,8 @@ pub async fn server_main(tls: bool) -> std::io::Result<()> {
                      to(identity_providers))
             .service(web::resource("/v3/identity_providers/{id}").
                      to(identity_provider ))
-            .service(web::resource("/v3/namespace").
-                     to(namespace))
+            .service(web::resource("/v3/namespaces").
+                     to(namespaces))
     });
 
     server = {
