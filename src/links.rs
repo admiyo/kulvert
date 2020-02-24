@@ -21,15 +21,6 @@ pub struct MediaType {
     pub media_type: String
 }
 
-pub fn get_base_url() -> String {
-    let base = BaseLink{
-        hostname: "localhost".to_string(),
-        port:8443
-    };
-    let base_url =  format!("https://{}:{}", base.hostname, base.port); 
-    return  base_url.to_string();
-}
-
 pub fn get_json_media_type() -> [MediaType; 1] {
     let a = MediaType {
         base: "application/json".to_string(),
@@ -38,4 +29,3 @@ pub fn get_json_media_type() -> [MediaType; 1] {
 
     return [a];
 }
-

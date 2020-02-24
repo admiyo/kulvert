@@ -19,7 +19,7 @@ pub struct Versions {
 
 
 pub fn get_v3_url() -> String {
-    format!("{}{}", super::links::get_base_url(), "/v3")
+    "/v3".to_string()
 }
 
 
@@ -27,7 +27,7 @@ fn get_v3_summary_links() -> [super::links::Link; 1]{
     let a = super::links::Link{
         href: get_v3_url().to_string(),
         htype: "text/html".to_string(),
-        rel: "self".to_string()
+        rel: "v3".to_string()
     };
     return [a];
 }
@@ -42,18 +42,18 @@ fn get_v3_links() -> [super::links::Link; 3]{
 
 
     let identity_providers_link = super::links::Link{
-        href: "https://localhost:8443/v3/identity_providers".to_string(),
+        href: "/v3/identity_providers".to_string(),
         htype: "text/html".to_string(),
         rel: "identity_providers".to_string()
     };
 
     let namespace_link = super::links::Link{
-        href: "https://localhost:8443/v3/namespace".to_string(),
+        href: "/v3/namespace".to_string(),
         htype: "text/html".to_string(),
         rel: "namespace".to_string()
     };
 
-    
+
     return [selflink, identity_providers_link, namespace_link];
 }
 
@@ -65,7 +65,6 @@ pub fn get_v3_summary() -> Version{
         media_types: super::links::get_json_media_type().to_vec(),
         id: "v3.10".to_string(),
         links: get_v3_summary_links().to_vec()
-            
     };
     return a;
 }
@@ -77,9 +76,7 @@ pub fn get_v3() -> Version{
         media_types: super::links::get_json_media_type().to_vec(),
         id: "v3.10".to_string(),
         links: get_v3_links().to_vec()
-            
     };
-
     return a;
 }
 
@@ -88,5 +85,5 @@ pub fn get_versions() -> Versions{
         versions: [get_v3_summary()].to_vec()
     };
     return a;
-    
+
 }

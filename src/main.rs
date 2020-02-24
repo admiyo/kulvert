@@ -21,8 +21,6 @@ fn main(){
              .multiple(false)
              .help("Run with TLS on port 8443"))
         .get_matches();
-    
-    println!("Matches are: {:?}", matches.args);
 
     let tls: bool = {
         if let Some(_o) = matches.value_of("tls") {
