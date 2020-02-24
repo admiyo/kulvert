@@ -23,10 +23,9 @@ fn main(){
         .get_matches();
 
     let tls: bool = {
-        if let Some(_o) = matches.value_of("tls") {
-            true
-        }else{
-            false
+        match matches.occurrences_of("tls") {
+            0 => false,
+            1 | _ => true,
         }
     };
     let _rs = server::server_main(tls);
