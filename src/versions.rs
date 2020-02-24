@@ -22,6 +22,13 @@ pub fn get_v3_url() -> String {
     "/v3".to_string()
 }
 
+pub fn get_v3_link(rel: &str) -> super::links::Link {
+    return  super::links::Link{
+        href: get_v3_url().to_string(),
+        htype: "text/html".to_string(),
+        rel: rel.to_string()
+    }
+}
 
 fn get_v3_summary_links() -> [super::links::Link; 1]{
     let a = super::links::Link{

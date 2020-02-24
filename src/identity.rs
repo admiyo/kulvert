@@ -48,21 +48,13 @@ pub fn get_identity_providers_href() -> String {
     super::versions::get_v3_url() + "/identity_providers"
 }
 
-pub fn get_identity_providers_link() -> super::links::Link {
+pub fn get_identity_providers_link(rel: &str) -> super::links::Link {
     return super::links::Link{
         href: get_identity_providers_href(),
         htype: "text/html".to_string(),
-        rel: "parent".to_string()
+        rel: rel.to_string()
     }
 
-}
-
-pub fn get_parent_link() -> super::links::Link {
-    return  super::links::Link{
-        href: super::versions::get_v3_url().to_string(),
-        htype: "text/html".to_string(),
-        rel: "parent".to_string()
-    }
 }
 
 pub fn get_provider_link(provider: &Provider) -> super::links::Link {
@@ -85,8 +77,6 @@ pub fn get_provider(id: &str) -> Provider{
     }
 }
 
-
-
 pub fn get_providers() -> Providers{
 
     //THIS is sample data.
@@ -98,8 +88,8 @@ pub fn get_providers() -> Providers{
     };
     let a = Providers {
         providers: [get_provider_link(&p)].to_vec(),
-        links: [get_parent_link(),
-                 get_identity_providers_link()].to_vec(),
+        links: [super::versions::get_v3_link("parent"),
+                get_identity_providers_link("self")].to_vec(),
 
     };
     return a;
