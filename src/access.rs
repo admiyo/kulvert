@@ -1,5 +1,7 @@
 use serde::Serialize;
 
+use uuid::Uuid;
+
 
 #[derive(Clone, Serialize)]
 pub struct Role {
@@ -11,13 +13,12 @@ pub struct Namespace {
     id: String,
     roles: Vec<Role>,
     namespaces: Vec<Namespace>,
-
 }
 
 
 pub fn get_namespace() -> Namespace{
     let a = Namespace {
-        id: "/".to_string(),
+        id: Uuid::new_v4().to_simple().to_string(),
         roles: [].to_vec(),
         namespaces: [].to_vec(),
     };
